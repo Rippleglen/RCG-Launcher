@@ -23,7 +23,8 @@ If you download from the [Releases](https://github.com/dscalzi/HeliosLauncher/re
 
 You can join my Discord here: For updates on my game dev journeys and my modpacks!
 
-https://discord.com/api/guilds/1232558029547769937/widget.json
+[![Discord Server](https://img.shields.io/discord/1232558029547769937?color=blue&label=Join%20Our%20Discord&logo=discord)](https://discord.gg/NTfA9eeYfT)
+
 
 ---
 
