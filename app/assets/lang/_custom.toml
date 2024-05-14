@@ -1,0 +1,20 @@
+# Custom Language File for Launcher Customizer
+
+[ejs.app]
+title = "RCG Launcher"
+
+[ejs.landing]
+mediaGitHubURL = "https://github.com/dscalzi/HeliosLauncher"
+mediaTwitterURL = "#"
+mediaInstagramURL = "#"
+mediaYouTubeURL = "#"
+mediaDiscordURL = "https://discord.gg/zNWUXdt"
+
+[ejs.settings]
+sourceGithubLink = "https://github.com/dscalZi/HeliosLauncher"
+supportLink = "https://github.com/dscalZi/HeliosLauncher/issues"
+
+[ejs.welcome]
+welcomeHeader = "WELCOME TO THE NEW AND IMPROVED RCG LAUNCHER!"
+welcomeDescription = "Hi there everybody, welcome to my new launcher. This new version is built entierly within Electron, the same framework of which the vanilla Minecraft launcher is built. RCG expands massively upon my old CT Launcher with numerous security updates, bundled Java runtime and more stability."
+welcomeDescCTA = "Upon clicking continue, you'll recieve a prompt to login to your Microsoft Account."
