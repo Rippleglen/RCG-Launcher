@@ -5,9 +5,9 @@
   "description": "A launcher to launch shit I've made",
   "author": "Rippleglen (Taylor Roberts)",
   "license": "ALL RIGHTS RESERVED",
-  "homepage": "https://github.com/dscalzi/HeliosLauncher",
+  "homepage": "https://github.com/Rippleglen/RCG-Launcher",
   "bugs": {
-    "url": "https://github.com/dscalzi/HeliosLauncher/issues"
+    "url": "https://github.com/Rippleglen/RCG-Launcher/issues"
   },
   "private": true,
   "main": "index.js",
@@ -46,6 +46,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dscalzi/HeliosLauncher.git"
+    "url": "git+https://github.com/Rippleglen/RCG-Launcher.git"
   }
 }
