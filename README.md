@@ -4,7 +4,7 @@
 
 <em><h5 align="center">(formerly CT Launcher)</h5></em>
 
-<p align="center">A launcher based on Helios Launcher's Framework</p>
+<p align="center">A custom minecraft launcher based on Helios Launcher's Framework, used for playing my modpacks!</p>
 
 #### Latest Release
 
