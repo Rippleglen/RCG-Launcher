@@ -6,13 +6,10 @@
 
 <p align="center">A custom minecraft launcher based on Helios Launcher's Framework, used for playing my modpacks!</p>
 
-#### Latest Release
-
-[![](https://img.shields.io/github/release/dscalzi/HeliosLauncher.svg?style=flat-square)](https://github.com/dscalzi/HeliosLauncher/releases/latest)
 
 **Supported Platforms**
 
-If you download from the [Releases](https://github.com/dscalzi/HeliosLauncher/releases) tab, select the installer for your system.
+If you download from the [Releases](https://github.com/Rippleglen/RCG-Launcher/releases) tab, select the installer for your system.
 
 | Platform | File |
 | -------- | ---- |
