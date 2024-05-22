@@ -1,6 +1,6 @@
 {
   "name": "rcglauncher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "productName": "RCG Launcher",
   "description": "A launcher to launch shit I've made",
   "author": "Rippleglen (Taylor Roberts)",
@@ -46,6 +46,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rippleglen/RCG-Launcher.git"
+    "url": "https://github.com/Rippleglen/RCG-Launcher.git"
   }
 }
