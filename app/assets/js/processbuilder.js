@@ -38,6 +38,7 @@ class ProcessBuilder {
 
         this.usingLiteLoader = false
         this.usingFabricLoader = false
+        this.usingQuiltLoader = false
         this.llPath = null
     }
     
@@ -52,6 +53,8 @@ class ProcessBuilder {
         logger.info('Using liteloader:', this.usingLiteLoader)
         this.usingFabricLoader = this.server.modules.some(mdl => mdl.rawModule.type === Type.Fabric)
         logger.info('Using fabric loader:', this.usingFabricLoader)
+        this.usingQuiltLoader = this.server.modules.some(mdl => mdl.rawModule.type === Type.Quilt)
+        logger.info('Using quilt loader:', this.usingQuiltLoader)
         const modObj = this.resolveModConfiguration(ConfigManager.getModConfiguration(this.server.rawServer.id).mods, this.server.modules)
         
         // Mod list below 1.13
@@ -179,7 +182,7 @@ class ProcessBuilder {
 
         for(let mdl of mdls){
             const type = mdl.rawModule.type
-            if(type === Type.ForgeMod || type === Type.LiteMod || type === Type.LiteLoader || type === Type.FabricMod){
+            if(type === Type.ForgeMod || type === Type.LiteMod || type === Type.LiteLoader || type === Type.FabricMod || type === Type.QuiltMod){
                 const o = !mdl.getRequired().value
                 const e = ProcessBuilder.isModEnabled(modCfg[mdl.getVersionlessMavenIdentifier()], mdl.getRequired())
                 if(!o || (o && e)){
@@ -191,7 +194,7 @@ class ProcessBuilder {
                             continue
                         }
                     }
-                    if(type === Type.ForgeMod || type === Type.FabricMod){
+                    if(type === Type.ForgeMod || type === Type.FabricMod || type === Type.QuiltMod){
                         fMods.push(mdl)
                     } else {
                         lMods.push(mdl)
@@ -295,31 +298,44 @@ class ProcessBuilder {
     // }
 
     /**
-     * Construct the mod argument list for forge 1.13 and Fabric
+     * Construct the mod argument list for Forge 1.13, Fabric, and Quilt
      * 
      * @param {Array.<Object>} mods An array of mods to add to the mod list.
      */
     constructModList(mods) {
         const writeBuffer = mods.map(mod => {
-            return this.usingFabricLoader ? mod.getPath() : mod.getExtensionlessMavenIdentifier()
+            if (this.usingFabricLoader || this.usingQuiltLoader) {
+                return mod.getPath()
+            } else {
+                return mod.getExtensionlessMavenIdentifier()
+            }
         }).join('\n')
 
         if(writeBuffer) {
             fs.writeFileSync(this.forgeModListFile, writeBuffer, 'UTF-8')
-            return this.usingFabricLoader ? [
-                '--fabric.addMods',
-                `@${this.forgeModListFile}`
-            ] : [
-                '--fml.mavenRoots',
-                path.join('..', '..', 'common', 'modstore'),
-                '--fml.modLists',
-                this.forgeModListFile
-            ]
+            if (this.usingFabricLoader) {
+                return [
+                    '--fabric.addMods',
+                    `@${this.forgeModListFile}`
+                ]
+            } else if (this.usingQuiltLoader) {
+                return [
+                    '--quilt.addMods',
+                    `@${this.forgeModListFile}`
+                ]
+            } else {
+                return [
+                    '--fml.mavenRoots',
+                    path.join('..', '..', 'common', 'modstore'),
+                    '--fml.modLists',
+                    this.forgeModListFile
+                ]
+            }
         } else {
             return []
         }
-
     }
+
 
     _processAutoConnectArg(args){
         if(ConfigManager.getAutoConnect() && this.server.rawServer.autoconnect){
@@ -671,7 +687,7 @@ class ProcessBuilder {
     classpathArg(mods, tempNativePath){
         let cpArgs = []
 
-        if(!mcVersionAtLeast('1.17', this.server.rawServer.minecraftVersion) || this.usingFabricLoader) {
+        if(!mcVersionAtLeast('1.17', this.server.rawServer.minecraftVersion) || this.usingFabricLoader || this.usingQuiltLoader) {
             // Add the version.jar to the classpath.
             // Must not be added to the classpath for Forge 1.17+.
             const version = this.vanillaManifest.id
@@ -835,7 +851,7 @@ class ProcessBuilder {
         // Locate Forge/Fabric/Libraries
         for(let mdl of mdls){
             const type = mdl.rawModule.type
-            if(type === Type.ForgeHosted || type === Type.Fabric || type === Type.Library){
+            if(type === Type.ForgeHosted || type === Type.Fabric || type === Type.Quilt || type === Type.Library){
                 libs[mdl.getVersionlessMavenIdentifier()] = mdl.getPath()
                 if(mdl.subModules.length > 0){
                     const res = this._resolveModuleLibraries(mdl)
