@@ -2,9 +2,9 @@ const AdmZip                = require('adm-zip')
 const child_process         = require('child_process')
 const crypto                = require('crypto')
 const fs                    = require('fs-extra')
-const { LoggerUtil }        = require('helios-core')
-const { getMojangOS, isLibraryCompatible, mcVersionAtLeast }  = require('helios-core/common')
-const { Type }              = require('helios-distribution-types')
+const { LoggerUtil }        = require('ripplelauncher-core')
+const { getMojangOS, isLibraryCompatible, mcVersionAtLeast }  = require('ripplelauncher-core/common')
+const { Type }              = require('ripplelauncher-distribution-types')
 const os                    = require('os')
 const path                  = require('path')
 
@@ -35,6 +35,8 @@ class ProcessBuilder {
         this.fmlDir = path.join(this.gameDir, 'forgeModList.json')
         this.llDir = path.join(this.gameDir, 'liteloaderModList.json')
         this.libPath = path.join(this.commonDir, 'libraries')
+
+        this.copiedQuiltMods = [];
 
         this.usingLiteLoader = false
         this.usingFabricLoader = false
@@ -96,17 +98,30 @@ class ProcessBuilder {
             data.trim().split('\n').forEach(x => console.log(`\x1b[31m[Minecraft]\x1b[0m ${x}`))
         })
         child.on('close', (code, signal) => {
-            logger.info('Exited with code', code)
+            logger.info('Exited with code', code);
             fs.remove(tempNativePath, (err) => {
-                if(err){
-                    logger.warn('Error while deleting temp dir', err)
+                if (err) {
+                    logger.warn('Error while deleting temp dir', err);
                 } else {
-                    logger.info('Temp dir deleted successfully.')
+                    logger.info('Temp dir deleted successfully.');
                 }
-            })
-        })
-
-        return child
+            });
+    
+            // Delete copied Quilt mods
+            if (this.copiedQuiltMods && this.copiedQuiltMods.length > 0) {
+                for (const modPath of this.copiedQuiltMods) {
+                    fs.remove(modPath, (err) => {
+                        if (err) {
+                            logger.warn(`Error while deleting mod ${modPath}:`, err);
+                        } else {
+                            logger.info(`Deleted mod ${modPath} successfully.`);
+                        }
+                    });
+                }
+            }
+        });
+    
+        return child;
     }
 
     /**
@@ -303,38 +318,47 @@ class ProcessBuilder {
      * @param {Array.<Object>} mods An array of mods to add to the mod list.
      */
     constructModList(mods) {
-        const writeBuffer = mods.map(mod => {
-            if (this.usingFabricLoader || this.usingQuiltLoader) {
-                return mod.getPath()
-            } else {
-                return mod.getExtensionlessMavenIdentifier()
-            }
-        }).join('\n')
-
-        if(writeBuffer) {
-            fs.writeFileSync(this.forgeModListFile, writeBuffer, 'UTF-8')
+        if (mods.length > 0) {
             if (this.usingFabricLoader) {
+                const writeBuffer = mods.map(mod => mod.getPath()).join('\n');
+                fs.writeFileSync(this.forgeModListFile, writeBuffer, 'UTF-8');
                 return [
                     '--fabric.addMods',
                     `@${this.forgeModListFile}`
-                ]
+                ];
             } else if (this.usingQuiltLoader) {
-                return [
-                    '--quilt.addMods',
-                    `@${this.forgeModListFile}`
-                ]
+                // Copy mods to the 'mods' directory
+                const modsDir = path.join(this.gameDir, 'mods');
+                fs.ensureDirSync(modsDir);
+    
+                // Keep track of copied mods for later deletion
+                this.copiedQuiltMods = [];
+    
+                for (const mod of mods) {
+                    const modPath = mod.getPath();
+                    const destPath = path.join(modsDir, path.basename(modPath));
+                    fs.copySync(modPath, destPath);
+                    this.copiedQuiltMods.push(destPath);
+                }
+    
+                // No need to pass any special arguments to Quilt Loader
+                return [];
             } else {
+                // Forge arguments
+                const writeBuffer = mods.map(mod => mod.getExtensionlessMavenIdentifier()).join('\n');
+                fs.writeFileSync(this.forgeModListFile, writeBuffer, 'UTF-8');
                 return [
                     '--fml.mavenRoots',
                     path.join('..', '..', 'common', 'modstore'),
                     '--fml.modLists',
                     this.forgeModListFile
-                ]
+                ];
             }
         } else {
-            return []
+            return [];
         }
     }
+    
 
 
     _processAutoConnectArg(args){

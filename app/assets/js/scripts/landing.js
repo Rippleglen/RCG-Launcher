@@ -6,18 +6,18 @@ const { URL }                 = require('url')
 const {
     MojangRestAPI,
     getServerStatus
-}                             = require('helios-core/mojang')
+}                             = require('ripplelauncher-core/mojang')
 const {
     RestResponseStatus,
     isDisplayableError,
     validateLocalFile
-}                             = require('helios-core/common')
+}                             = require('ripplelauncher-core/common')
 const {
     FullRepair,
     DistributionIndexProcessor,
     MojangIndexProcessor,
     downloadFile
-}                             = require('helios-core/dl')
+}                             = require('ripplelauncher-core/dl')
 const {
     validateSelectedJvm,
     ensureJavaDirIsRoot,
@@ -25,7 +25,7 @@ const {
     discoverBestJvmInstallation,
     latestOpenJDK,
     extractJdk
-}                             = require('helios-core/java')
+}                             = require('ripplelauncher-core/java')
 
 // Internal Requirements
 const DiscordWrapper          = require('./assets/js/discordwrapper')
@@ -605,33 +605,40 @@ async function dlAsync(login = true) {
         }
 
         try {
-            // Build Minecraft process.
-            proc = pb.build()
-
-            // Bind listeners to stdout.
-            proc.stdout.on('data', tempListener)
-            proc.stderr.on('data', gameErrorListener)
-
-            setLaunchDetails(Lang.queryJS('landing.dlAsync.doneEnjoyServer'))
-
-            // Init Discord Hook
-            if(distro.rawDistribution.discord != null && serv.rawServer.discord != null){
-                DiscordWrapper.initRPC(distro.rawDistribution.discord, serv.rawServer.discord)
-                hasRPC = true
-                proc.on('close', (code, signal) => {
-                    loggerLaunchSuite.info('Shutting down Discord Rich Presence..')
-                    DiscordWrapper.shutdownRPC()
-                    hasRPC = false
-                    proc = null
-                })
+            proc = pb.build();
+        
+            // Bind listeners
+            proc.stdout.on('data', tempListener);
+            proc.stderr.on('data', gameErrorListener);
+        
+            setLaunchDetails(Lang.queryJS('landing.dlAsync.doneEnjoyServer'));
+        
+            // Discord Hook
+            if(distro.rawDistribution.discord && serv.rawServer.discord) {
+                DiscordWrapper.initRPC(distro.rawDistribution.discord, serv.rawServer.discord);
+                hasRPC = true;
             }
-
-        } catch(err) {
-
-            loggerLaunchSuite.error('Error during launch', err)
-            showLaunchFailure(Lang.queryJS('landing.dlAsync.errorDuringLaunchTitle'), Lang.queryJS('landing.dlAsync.checkConsoleForDetails'))
-
+        
+            // Detect game close to reset UI
+            proc.on('close', (code, signal) => {
+                loggerLaunchSuite.info('Game process exited with code:', code);
+                
+                // Shutdown Discord RPC
+                if (hasRPC) {
+                    loggerLaunchSuite.info('Shutting down Discord Rich Presence..');
+                    DiscordWrapper.shutdownRPC();
+                    hasRPC = false;
+                }
+                
+                // Reset UI to initial state
+                setLaunchDetails(Lang.queryJS('landing.launchButton'));
+                proc = null; // Clear the process reference
+            });
+        } catch (err) {
+            loggerLaunchSuite.error('Error during launch', err);
+            showLaunchFailure(Lang.queryJS('landing.dlAsync.errorDuringLaunchTitle'), Lang.queryJS('landing.dlAsync.checkConsoleForDetails'));
         }
+        
     }
 
 }

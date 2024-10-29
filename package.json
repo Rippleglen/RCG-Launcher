@@ -1,10 +1,10 @@
 {
   "name": "rcglauncher",
-  "version": "v1.0.5",
+  "version": "v1.1.0",
   "productName": "RCG Launcher",
   "description": "A launcher to launch shit I've made",
   "author": "Rippleglen (Taylor Roberts)",
-  "license": "ALL RIGHTS RESERVED",
+  "license": "None",
   "homepage": "https://github.com/Rippleglen/RCG-Launcher",
   "bugs": {
     "url": "https://github.com/Rippleglen/RCG-Launcher/issues"
@@ -32,8 +32,8 @@
     "fs-extra": "^11.1.1",
     "github-syntax-dark": "^0.5.0",
     "got": "^11.8.5",
-    "helios-core": "~2.2.1",
-    "helios-distribution-types": "^1.3.0",
+    "ripplelauncher-core": "~2.2.4",
+    "ripplelauncher-distribution-types": "^1.3.1",
     "jquery": "^3.7.1",
     "lodash.merge": "^4.6.2",
     "semver": "^7.6.0",
